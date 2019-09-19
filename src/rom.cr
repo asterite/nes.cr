@@ -3,13 +3,11 @@ class Rom
   TRAINER_SIZE = 512
   PRG_ROM_SIZE = 16384
   CHR_ROM_SIZE = 8192
-  SRAM_SIZE = 8192
 
   @prg_banks : UInt8
   @chr_banks : UInt8
   @mirror_mode : Symbol
   @chr_ram :  Array(UInt8)?
-  @sram : Array(UInt8)
 
   getter prg_banks
   getter chr_banks
@@ -23,7 +21,6 @@ class Rom
     if @chr_banks == 0
       @chr_ram = Array(UInt8).new(CHR_ROM_SIZE, 0_u8)
     end
-    @sram = Array(UInt8).new(SRAM_SIZE, 0_u8)
   end
 
   def self.from_file(path)
@@ -70,7 +67,7 @@ class Rom
         HEADER_SIZE +
         (has_trainer? ? TRAINER_SIZE : 0) +
         (PRG_ROM_SIZE * @prg_banks) +
-        address]
+        (address % (CHR_ROM_SIZE * @chr_banks))]
     end
   end
 
@@ -82,16 +79,8 @@ class Rom
         HEADER_SIZE +
         (has_trainer? ? TRAINER_SIZE : 0) +
         (PRG_ROM_SIZE * @prg_banks) +
-        address] = value
+        (address % (CHR_ROM_SIZE * @chr_banks))] = value
     end
-  end
-
-  def read_sram(address)
-    @sram[address]
-  end
-
-  def write_sram(address, value : UInt8)
-    @sram[address] = value
   end
 
   private def read_mirror_mode
