@@ -61,11 +61,13 @@ pixels = Pointer(UInt32).malloc(256 * 240)
 pitch = 256 * 4
 
 ticks = SDL.ticks
+quit = false
 
 loop do
   while event = SDL::Event.poll
     case event
     when SDL::Event::Quit
+      quit = true
       break
     when SDL::Event::Keyboard
       case event
@@ -110,6 +112,8 @@ loop do
       end
     end
   end
+
+  break if quit
 
   now = SDL.ticks
   nes.step(now - ticks)
